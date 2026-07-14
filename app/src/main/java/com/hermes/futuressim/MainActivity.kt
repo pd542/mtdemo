@@ -134,13 +134,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     fun submitOpen(isBuy: Boolean, price: Double, volume: Int) {
         val last = quote?.last ?: price
-        val direction = if (isBuy) Direction.LONG else Direction.SHORT
+        val direction = if (isBuy) com.hermes.futuressim.model.Direction.LONG else com.hermes.futuressim.model.Direction.SHORT
         val type = when (selectedOrderType) {
             "买入限价", "卖出限价", "买入止损限价", "卖出止损限价" -> OrderType.LIMIT
             "买入止损", "卖出止损" -> OrderType.STOP
             else -> OrderType.MARKET
         }
-        engine.submit(selected, direction, Offset.OPEN, type, price, volume.coerceAtLeast(1), last)
+        engine.submit(selected, direction, com.hermes.futuressim.model.Offset.OPEN, type, price, volume.coerceAtLeast(1), last)
     }
 
     fun closePosition(position: Position) {
@@ -156,8 +156,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         val tick = selected.tickSize
         val positions = engine.account.value.positions.filter { it.contract.symbol == selected.symbol }
         positions.forEach { p ->
-            val slHit = slTicks > 0 && ((p.direction == Direction.LONG && q.last <= p.avgPrice - slTicks * tick) || (p.direction == Direction.SHORT && q.last >= p.avgPrice + slTicks * tick))
-            val tpHit = tpTicks > 0 && ((p.direction == Direction.LONG && q.last >= p.avgPrice + tpTicks * tick) || (p.direction == Direction.SHORT && q.last <= p.avgPrice - tpTicks * tick))
+            val slHit = slTicks > 0 && ((p.direction == com.hermes.futuressim.model.Direction.LONG && q.last <= p.avgPrice - slTicks * tick) || (p.direction == com.hermes.futuressim.model.Direction.SHORT && q.last >= p.avgPrice + slTicks * tick))
+            val tpHit = tpTicks > 0 && ((p.direction == com.hermes.futuressim.model.Direction.LONG && q.last >= p.avgPrice + tpTicks * tick) || (p.direction == com.hermes.futuressim.model.Direction.SHORT && q.last <= p.avgPrice - tpTicks * tick))
             if (slHit || tpHit) engine.closePosition(p, q.last)
         }
     }
@@ -288,13 +288,13 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         ensureChartOrderDraft()
         val last = quote?.last ?: draftEntryPrice
         val isBuy = !chartOrderType.startsWith("卖出")
-        val direction = if (isBuy) Direction.LONG else Direction.SHORT
+        val direction = if (isBuy) com.hermes.futuressim.model.Direction.LONG else com.hermes.futuressim.model.Direction.SHORT
         val type = when {
             chartOrderType.contains("止损") -> OrderType.STOP
             chartOrderType.contains("限价") -> OrderType.LIMIT
             else -> OrderType.MARKET
         }
-        engine.submit(selected, direction, Offset.OPEN, type, draftEntryPrice, chartOrderVolume.coerceAtLeast(1), last)
+        engine.submit(selected, direction, com.hermes.futuressim.model.Offset.OPEN, type, draftEntryPrice, chartOrderVolume.coerceAtLeast(1), last)
         val tick = selected.tickSize
         stopLossTicks = if (chartSlEnabled) kotlin.math.max(0, kotlin.math.round(kotlin.math.abs(draftEntryPrice - draftSlPrice) / tick).toInt()) else 0
         takeProfitTicks = if (chartTpEnabled) kotlin.math.max(0, kotlin.math.round(kotlin.math.abs(draftTpPrice - draftEntryPrice) / tick).toInt()) else 0
@@ -840,7 +840,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     Column(Modifier.fillMaxWidth().padding(vertical = 11.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(t.symbol, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-            Text("${t.direction}/${t.offset}", color = if (t.direction == Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
+            Text("${t.direction}/${t.offset}", color = if (t.direction == com.hermes.futuressim.model.Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -921,7 +921,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             items(positions) { p ->
                 Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("${p.contract.symbol}, ${if (p.direction == Direction.LONG) "buy" else "sell"}", color = if (p.direction == Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
+                        Text("${p.contract.symbol}, ${if (p.direction == com.hermes.futuressim.model.Direction.LONG) "buy" else "sell"}", color = if (p.direction == com.hermes.futuressim.model.Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
                         Text("${p.volume} 手", color = Color.Black)
                     }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -949,7 +949,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             items(orders) { o ->
                 Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("${o.contract.symbol}, ${if (o.direction == Direction.LONG) "buy" else "sell"}", color = if (o.direction == Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
+                        Text("${o.contract.symbol}, ${if (o.direction == com.hermes.futuressim.model.Direction.LONG) "buy" else "sell"}", color = if (o.direction == com.hermes.futuressim.model.Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
                         Text(o.status.name, color = Color.Gray, fontSize = 13.sp)
                     }
                     Text("#${o.id}  ${fmt(o.createdAt)}", color = Color.Gray, fontSize = 13.sp)
@@ -978,7 +978,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
             items(trades) { t ->
                 Column(Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("${t.symbol}, ${if (t.direction == Direction.LONG) "buy" else "sell"}", color = if (t.direction == Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
+                        Text("${t.symbol}, ${if (t.direction == com.hermes.futuressim.model.Direction.LONG) "buy" else "sell"}", color = if (t.direction == com.hermes.futuressim.model.Direction.LONG) Color(0xFF1976D2) else Color(0xFFE53935), fontWeight = FontWeight.Bold)
                         Text("${"%.2f".format(t.pnl)}", color = if (t.pnl >= 0) Color(0xFF1976D2) else Color(0xFFE53935), fontSize = 13.sp)
                     }
                     Text("#${t.orderId}  ${fmt(t.time)}", color = Color.Gray, fontSize = 13.sp)
